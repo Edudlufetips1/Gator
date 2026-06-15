@@ -3,7 +3,7 @@ package main
 import (
     "log"
     "github.com/Edudlufetips1/Gator/internal/config"
-	"fmt"
+	"os"
 )
 
 func main() {
@@ -11,13 +11,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config, %v", err)
 	}
-	err = cfg.SetUser("Asad")
-	if err != nil {
-		log.Fatalf("error setting user: %v", err)
+	s := state {
+		cfg: &cfg,
 	}
-	cfg, err = config.Read()
-	if err != nil {
-		log.Fatalf("error reading config, %v", err)
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
-	fmt.Printf("%+v\n", cfg)
+	cmds.register("login", handlerLogin)
+	if len(os.Args) < 2 {
+		log.Fatal("Not enough arguments")
+	}
+	cmd := command {
+		name: os.Args[1],
+		args: os.Args[2:],
+	}
+	err = cmds.run(&s, cmd)
+	if err != nil {
+		log.Fatalf("not able to run command: %v", err)
+	}
 }

@@ -1,9 +1,8 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"github.com/Edudlufetips1/Gator/internal/config"
+	"errors"
 )
 
 type state struct {
@@ -15,14 +14,17 @@ type command struct {
 	args []string
 }
 
-func handlerLogin(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return errors.New("Login requires at least one argument")
-	}
-	err := s.cfg.SetUser(cmd.args[0])
-	if err != nil {
-		return err
-	}
-	fmt.Printf("User %s has been set!\n", cmd.args[0])
-	return nil
+type commands struct {
+	registeredCommands map[string]func(*state, command) error
 }
+
+func (c *commands) run(s *state, cmd command) error {
+	handler, ok := c.registeredCommands[cmd.name] 
+	if !ok {
+		return errors.New("command does not exist")
+	}
+	return handler(s, cmd)
+	}
+
+func (c *commands) register(name string, f func(*state, command) error) {
+	c.registeredCommands[name] = f}
