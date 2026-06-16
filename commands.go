@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/Edudlufetips1/Gator/internal/config"
+	"github.com/Edudlufetips1/Gator/internal/database"
 	"errors"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
