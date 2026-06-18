@@ -11,7 +11,7 @@ import (
 
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return errors.New("Login requires at least one argument")
+		return errors.New("Login requires at least one argument\n")
 	}
 	_, err := s.db.GetUser(context.Background(), cmd.args[0])
 	if err != nil {
@@ -27,7 +27,7 @@ func handlerLogin(s *state, cmd command) error {
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return errors.New("Registration requires at least one argument")
+		return errors.New("Registration requires at least one argument\n")
 	}
 	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID: 		uuid.New(),
@@ -52,6 +52,21 @@ func handlerReset(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("User records have been deleted")
+	fmt.Printf("User records have been deleted\n")
+	return nil
+}
+
+func handlerListUsers(s *state, cmd command) error {
+	users, err := s.db.ListUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, user := range users {
+		if user.Name == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", user.Name)
+		} else { 
+		fmt.Printf("* %s\n", user.Name)
+		}
+	}
 	return nil
 }
