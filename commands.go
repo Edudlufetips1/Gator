@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"github.com/Edudlufetips1/Gator/internal/config"
 	"github.com/Edudlufetips1/Gator/internal/database"
-	"errors"
 )
 
 type state struct {
@@ -12,8 +12,8 @@ type state struct {
 }
 
 type command struct {
-	name string
-	args []string
+	Name string
+	Args []string
 }
 
 type commands struct {
@@ -21,12 +21,13 @@ type commands struct {
 }
 
 func (c *commands) run(s *state, cmd command) error {
-	handler, ok := c.registeredCommands[cmd.name] 
+	handler, ok := c.registeredCommands[cmd.Name]
 	if !ok {
 		return errors.New("command does not exist")
 	}
 	return handler(s, cmd)
-	}
+}
 
 func (c *commands) register(name string, f func(*state, command) error) {
-	c.registeredCommands[name] = f}
+	c.registeredCommands[name] = f
+}

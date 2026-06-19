@@ -1,12 +1,14 @@
 package main
 
 import (
-    "log"
-    "github.com/Edudlufetips1/Gator/internal/config"
-	"github.com/Edudlufetips1/Gator/internal/database"
-	"os"
-	_ "github.com/lib/pq"
+	"context"
 	"database/sql"
+	"log"
+	"os"
+
+	"github.com/Edudlufetips1/Gator/internal/config"
+	"github.com/Edudlufetips1/Gator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -19,8 +21,8 @@ func main() {
 		log.Fatalf("error retrieving database")
 	}
 	dbQueries := database.New(db)
-	s := state {
-		db: dbQueries,
+	s := state{
+		db:  dbQueries,
 		cfg: &cfg,
 	}
 	cmds := commands{
@@ -32,18 +34,18 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerListUsers)
 	cmds.register("agg", handlerAgg)
-	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	cmds.register("feeds", handlerListFeeds)
-	cmds.register("follow", handlerFollow)
-	cmds.register("following", handlerFeedFollow)
+	cmds.register("follow", middlewareLoggedIn(handlerFollow))
+	cmds.register("following", middlewareLoggedIn(handlerFeedFollow))
 
 	if len(os.Args) < 2 {
 		log.Fatal("Not enough arguments")
 	}
 
 	cmd := command{
-		name: os.Args[1],
-		args: os.Args[2:],
+		Name: os.Args[1],
+		Args: os.Args[2:],
 	}
 
 	err = cmds.run(&s, cmd)
@@ -53,4 +55,11 @@ func main() {
 }
 
 func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+		if err != nil {
+			return err
+		}
+		return handler(s, cmd, user)
 	}
+}

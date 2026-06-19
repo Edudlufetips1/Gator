@@ -3,20 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 	"github.com/Edudlufetips1/Gator/internal/database"
 	"github.com/google/uuid"
+	"time"
 )
 
-func handlerFollow(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
-		return fmt.Errorf("usage: %s <url>", cmd.name)
+func handlerFollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <url>", cmd.Name)
 	}
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return err
 	}
-	feed, err := s.db.GetFeedByUrl(context.Background(), cmd.args[0])
+	feed, err := s.db.GetFeedByUrl(context.Background(), cmd.Args[0])
 	if err != nil {
 		return err
 	}
@@ -36,8 +36,8 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFeedFollow(s *state, cmd command) error {
-	if len(cmd.args) != 0 {
+func handlerFeedFollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 0 {
 		return fmt.Errorf("'Following' command takes no arguments")
 	}
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
@@ -51,5 +51,24 @@ func handlerFeedFollow(s *state, cmd command) error {
 	for _, ff := range feedFollows {
 		fmt.Printf("Currently followed feeds by %s: %s\n", user.Name, ff.FeedName)
 	}
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: unfollow <feed> <user>\n")
+	}
+	feed, err := s.db.GetFeedByUrl(context.Background(), cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("couldn't get feed: %w", err)
+	}
+	err = s.db.UnfollowFeedForUser(context.Background(), database.UnfollowFeedForUserParams{
+		FeedID: feed.ID,
+		UserID: user.ID,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Feed %s successfully unfollowed", feed.Url)
 	return nil
 }
