@@ -27,10 +27,20 @@ func handlerAddFeed(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return err
+	}
 	fmt.Printf("Name: %s\n", feed.Name)
 	fmt.Printf("URL: %s\n", feed.Url)
 	fmt.Printf("Created at: %s\n", feed.CreatedAt)
-	fmt.Printf("Updated at: %s\n", feed.Url)
+	fmt.Printf("Updated at: %s\n", feed.UpdatedAt)
 	fmt.Printf("ID: %s\n", feed.ID)
 	fmt.Printf("UserID: %s\n", feed.UserID)
 	return nil

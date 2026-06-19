@@ -34,6 +34,8 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerListFeeds)
+	cmds.register("follow", handlerFollow)
+	cmds.register("following", handlerFeedFollow)
 
 	if len(os.Args) < 2 {
 		log.Fatal("Not enough arguments")
@@ -49,3 +51,6 @@ func main() {
 		log.Fatalf("not able to run command: %v", err)
 	}
 }
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	}
