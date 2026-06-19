@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 )
+
 type RSSFeed struct {
 	Channel struct {
 		Title       string    `xml:"title"`
@@ -30,7 +31,7 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	}
 
 	feedRequest.Header.Set("User-Agent", "gator")
-	
+
 	client := &http.Client{}
 	res, err := client.Do(feedRequest)
 	if err != nil {
@@ -42,7 +43,6 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	if err != nil {
 		return nil, err
 	}
-	
 
 	var feed RSSFeed
 	err = xml.Unmarshal(data, &feed)
@@ -52,7 +52,7 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 
 	feed.Channel.Title = html.UnescapeString(feed.Channel.Title)
 	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)
-	
+
 	for i := range feed.Channel.Item {
 		feed.Channel.Item[i].Title = html.UnescapeString(feed.Channel.Item[i].Title)
 		feed.Channel.Item[i].Description = html.UnescapeString(feed.Channel.Item[i].Description)
