@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
 	"github.com/Edudlufetips1/Gator/internal/database"
 	"github.com/google/uuid"
 )
