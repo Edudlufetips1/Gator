@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"html"
 	"io"
 	"net/http"
@@ -16,7 +17,7 @@ type RSSFeed struct {
 		Item        []RSSItem `xml:"item"`
 	} `xml:"channel"`
 }
-//
+
 type RSSItem struct {
 	Title       string `xml:"title"`
 	Link        string `xml:"link"`
@@ -25,6 +26,7 @@ type RSSItem struct {
 }
 
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
+	fmt.Println("FETCHFEED CALLED")
 	feedRequest, err := http.NewRequestWithContext(ctx, "GET", feedURL, nil)
 	if err != nil {
 		return nil, err
